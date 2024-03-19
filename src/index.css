@@ -1,0 +1,44 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+button.slick-next::before{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: gray;
+    content: "\276F";
+    font-size: 50px;
+    background-color: #ccc;
+    width: 60px;
+    height: 60px;
+    position: absolute;
+}
+
+button.slick-prev::before{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: gray;
+    content: "\276E";
+    font-size: 50px;
+    background-color: #ccc;
+    width: 60px;
+    height: 60px;
+}
+
+button.slick-next{
+    right: 50px;
+}
+
+button.slick-prev,button.slick-next{
+    z-index: 1000;
+}
+
+.ant-btn-primary:hover{
+    background-color: rgb(59 130 246 / 0.5) !important;
+}
+
+.ant-btn-primary{
+    background-color: rgb(59 130 246 / 1) !important;
+}
