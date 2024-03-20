@@ -4,7 +4,8 @@ import * as userAction from "../action/UserAction";
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    user: {},
+    user: null,
+    userDetail: null,
     isLoggedIn: false,
     accessToken: "",
     role: "",
@@ -25,24 +26,27 @@ export const userSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder.addCase(userAction.getProfile.pending, (state) => {
-      // Bật trạng thái loading
-      state.isLoading = true;
-    });
-
-    // Khi thực hiện action login thành công (Promise fulfilled)
-    builder.addCase(userAction.getProfile.fulfilled, (state, action) => {
-      // Tắt trạng thái loading, lưu thông tin user vào store
-      state.isLoading = false;
-      state.user = action.payload;
-    });
-
-    // Khi thực hiện action login thất bại (Promise rejected)
-    builder.addCase(userAction.getProfile.rejected, (state, action) => {
-      // Tắt trạng thái loading, lưu thông báo lỗi vào store
-      state.isLoading = false;
-      state.user = null;
-    });
+    builder
+      .addCase(userAction.getProfile.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(userAction.getProfile.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.user = action.payload;
+      })
+      .addCase(userAction.getProfile.rejected, (state, action) => {
+        state.isLoading = false;
+      })
+      .addCase(userAction.getDetailUser.pending, (state) => {
+        state.isLoading = true;
+      })
+      .addCase(userAction.getDetailUser.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.userDetail = action.payload;
+      })
+      .addCase(userAction.getDetailUser.rejected, (state, action) => {
+        state.isLoading = false;
+      });
   },
 });
 

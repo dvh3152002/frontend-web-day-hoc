@@ -1,23 +1,31 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Input,
   Form,
   Button,
   InputNumber,
   Typography,
-  Row,
-  Col,
   Select,
+  message,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../store/slice/LoadingSlice";
 import * as categoryAction from "../../../../store/action/CategoryAction";
 import * as userService from "../../../../apis/service/UserService";
+import * as courseService from "../../../../apis/service/CourseService";
+import MarkdownEditor from "../../../../components/markdown";
+import UploadImage from "../../../../components/upload-image";
+import { setFormData } from "../../../../utils/helper";
 
 function CreateCourse() {
+  const navigate = useNavigate();
   const { categories } = useSelector((state) => state.categories);
   const dispatch = useDispatch();
   const [users, setUsers] = useState([]);
+  const [invalidField, setInvalidField] = useState("");
+  const [description, setDescription] = useState();
+  const [file, setFile] = useState();
 
   const getListUser = async () => {
     const res = await userService.getListUser({
@@ -35,8 +43,39 @@ function CreateCourse() {
     dispatch(setLoading({ isLoading: false }));
   }, []);
 
+  const changeImage = useCallback(
+    (file) => {
+      setFile(file);
+    },
+    [file]
+  );
+
+  const changeValue = useCallback(
+    (e) => {
+      setDescription(e);
+    },
+    [description]
+  );
+
+  const createCourse = async (data) => {
+    const formData = setFormData(data);
+
+    const res = await courseService.createCourse(formData);
+    if (res?.success) {
+      message.success("Thêm khóa học thành công");
+      navigate("/admin/course");
+    } else message.error("Thêm khóa học thất bại");
+  };
+
   const onFinish = (data) => {
-    console.log("data: ", data);
+    if (!description) setInvalidField("Vui lòng nhập vào mô tả khóa học!");
+    else {
+      createCourse({
+        ...data,
+        description: description,
+        file: file,
+      });
+    }
   };
 
   return (
@@ -57,6 +96,9 @@ function CreateCourse() {
         }}
         autoComplete="off"
         onFinish={onFinish}
+        initialValues={{
+          discount: 0,
+        }}
       >
         <Form.Item
           label="Tên khóa học"
@@ -84,42 +126,13 @@ function CreateCourse() {
           <InputNumber min={0} />
         </Form.Item>
 
-        <Form.Item
-          label="Mô tả"
-          name="description"
-          // rules={[
-          //   {
-          //     required: true,
-          //     message: "Vui lòng nhập vào mô tả!",
-          //   },
-          // ]}
-        >
-          {/* <CkeditorComponent
-      data={detailCourse?.description}
-      onReady={(editor) => {
-        editor.editing.view.change((write) => {
-          write.setStyle(
-            "height",
-            "300px",
-            editor.editing.view.document.getRoot()
-          );
-        });
-      }}
-      onChange={(event, editor) => {
-        const data = editor.getData();
-        console.log("dataEditor: ", data);
-        setDescription(data);
-      }}
-    /> */}
-        </Form.Item>
-
         <Form.Item label="Giảm giá (%)" name="discount">
-          <InputNumber min={0} max={100} />
+          <InputNumber min={0} max={100} defaultValue={0} />
         </Form.Item>
 
         <Form.Item
           label="Danh mục"
-          name="idCategory"
+          name="categoryId"
           rules={[
             {
               required: true,
@@ -139,7 +152,7 @@ function CreateCourse() {
         </Form.Item>
         <Form.Item
           label="Người giảng dạy"
-          name="idUser"
+          name="userId"
           rules={[
             {
               required: true,
@@ -160,17 +173,16 @@ function CreateCourse() {
 
         <Form.Item
           label="Ảnh"
-          name="image"
-          rules={
-            [
-              // {
-              //   required: true,
-              //   message: "Vui lòng chọn ảnh!",
-              // },
-            ]
-          }
+          name="file"
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng chọn ảnh!",
+            },
+          ]}
         >
           <div className="avatar flex gap-3">
+            <UploadImage setFile={changeImage} />
             {/* <Upload onChange={handleChangeAvatar} maxCount={1}>
         <Button icon={<UploadOutlined />}>Select File</Button>
       </Upload>
@@ -182,6 +194,13 @@ function CreateCourse() {
         />
       )} */}
           </div>
+        </Form.Item>
+
+        <Form.Item label="Mô tả" name="description">
+          <MarkdownEditor name="description" changeValue={changeValue} />
+          {invalidField && (
+            <small className="text-red-500 text-sm">{invalidField}</small>
+          )}
         </Form.Item>
 
         <Form.Item

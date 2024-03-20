@@ -1,37 +1,48 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import {
-  Input,
-  Form,
-  Button,
-  InputNumber,
-  Typography,
-  Select,
-  message,
-} from "antd";
+import { useNavigate, useParams } from "react-router-dom";
+import { Input, Form, Button, Typography, Select, message } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../store/slice/LoadingSlice";
 import * as userService from "../../../../apis/service/UserService";
 import * as roleService from "../../../../apis/service/RoleService";
 import UploadImage from "../../../../components/upload-image";
 import { setFormData } from "../../../../utils/helper";
+import * as userAction from "../../../../store/action/UserAction";
 
-function CreateUser() {
+function EditUser() {
+  const { id } = useParams();
+  const { userDetail } = useSelector((state) => state.user);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [roles, setRoles] = useState([]);
   const [file, setFile] = useState();
+  const [user, setUser] = useState({});
 
   const getListRole = async () => {
     const res = await roleService.getListRole();
     if (res.success) setRoles(res.data);
   };
 
+  const getUser = async () => {
+    dispatch(userAction.getDetailUser(id));
+  };
+
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
     getListRole();
     dispatch(setLoading({ isLoading: false }));
-  }, []);
+  }, [id]);
+
+  useEffect(() => {
+    getUser();
+  }, [dispatch]);
+
+  useEffect(() => {
+    setUser({
+      ...userDetail,
+      roles: userDetail?.roles?.map((role) => role.id),
+    });
+  }, [userDetail]);
 
   const changeImage = useCallback(
     (file) => {
@@ -40,26 +51,38 @@ function CreateUser() {
     [file]
   );
 
-  const createUser = async (data) => {
+  const updateUser = async (data) => {
     const formData = setFormData(data);
-    const res = await userService.createUser(formData);
+    const res = await userService.updateUser(id, formData);
     if (res?.success) {
-      message.success("Thêm người dùng thành công");
+      message.success("Cập nhật người dùng thành công");
       navigate("/admin/user");
-    } else message.error("Thêm người dùng thất bại");
+    } else message.error("Cập nhật người dùng thất bại");
   };
 
-  const onFinish = (data) => {
-    createUser({
-      ...data,
+  const onFinish = () => {
+    console.log("user: ", user);
+    updateUser({
+      ...user,
       file: file,
+    });
+  };
+
+  const handleChangeValue = (e) => {
+    setUser({ ...user, [e.target.name]: e.target.value });
+  };
+
+  const handleChangeRole = (value) => {
+    setUser({
+      ...user,
+      roles: value, // Cập nhật giá trị của trường roles với giá trị mới
     });
   };
 
   return (
     <div className="p-6">
       <Typography.Title className="border-b pb-2 pl-2">
-        Thêm người dùng
+        Cập nhật người dùng
       </Typography.Title>
       <Form
         name="basic"
@@ -74,26 +97,17 @@ function CreateUser() {
         }}
         autoComplete="off"
         onFinish={onFinish}
-        initialValues={{
-          discount: 0,
-        }}
       >
-        <Form.Item
-          label="Họ tên"
-          name="fullname"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng nhập họ tên!",
-            },
-          ]}
-        >
-          <Input />
+        <Form.Item label="Họ tên">
+          <Input
+            name="fullname"
+            onChange={handleChangeValue}
+            value={user?.fullname}
+          />
         </Form.Item>
 
         <Form.Item
           label="Email"
-          name="email"
           rules={[
             {
               type: "email",
@@ -105,12 +119,15 @@ function CreateUser() {
             },
           ]}
         >
-          <Input />
+          <Input
+            name="email"
+            onChange={handleChangeValue}
+            value={user?.email}
+          />
         </Form.Item>
 
         <Form.Item
           label="Địa chỉ"
-          name="address"
           rules={[
             {
               required: true,
@@ -118,25 +135,15 @@ function CreateUser() {
             },
           ]}
         >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng nhập mật khẩu!",
-            },
-          ]}
-        >
-          <Input.Password />
+          <Input
+            name="address"
+            onChange={handleChangeValue}
+            value={user?.address}
+          />
         </Form.Item>
 
         <Form.Item
           label="Quyền"
-          name="roles"
           rules={[
             {
               required: true,
@@ -145,6 +152,9 @@ function CreateUser() {
           ]}
         >
           <Select
+            name="roles"
+            value={user?.roles}
+            onChange={handleChangeRole}
             mode="multiple"
             style={{
               width: "50%",
@@ -168,7 +178,7 @@ function CreateUser() {
             ]
           }
         >
-          <UploadImage setFile={changeImage} />
+          <UploadImage setFile={changeImage} url={user?.avatar} />
         </Form.Item>
 
         <Form.Item
@@ -178,7 +188,7 @@ function CreateUser() {
           }}
         >
           <Button type="primary" htmlType="submit">
-            Thêm mới
+            Cập nhật
           </Button>
         </Form.Item>
       </Form>
@@ -186,4 +196,4 @@ function CreateUser() {
   );
 }
 
-export default CreateUser;
+export default EditUser;

@@ -38,3 +38,27 @@ export const deleteUser = async (id) => {
     method: "DELETE",
   });
 };
+
+export const getDetailUser = async (id) => {
+  return axios({
+    url: `/user/${id}`,
+    method: "GET",
+  });
+};
+
+export const createUser = async (data) => {
+  return axios({
+    url: `/user`,
+    method: "POST",
+    data,
+  });
+};
+
+export const updateUser = async (id, data) => {
+  console.log("data: ", data);
+  return axios({
+    url: `/user/${id}`,
+    method: "PUT",
+    data,
+  });
+};

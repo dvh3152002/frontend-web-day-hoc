@@ -2,15 +2,18 @@ import React, { useEffect, useRef, useState } from "react";
 import { Typography, Table, Input, Space, Button, message, Modal } from "antd";
 import * as userService from "../../../../apis/service/UserService";
 import * as roleService from "../../../../apis/service/RoleService";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../store/slice/LoadingSlice";
 import {
   SearchOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import { NavLink, useNavigate } from "react-router-dom";
+import * as userAction from "../../../../store/action/UserAction";
 
 function ManageUser() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { confirm } = Modal;
   const [data, setData] = useState([]);
@@ -189,7 +192,9 @@ function ManageUser() {
       <div>
         <EditOutlined
           className="text-3xl text-orange-500 cursor-pointer mr-3"
-          // onClick={handleDetailProduct}
+          onClick={() => {
+            navigate(`/admin/user/edit/${record.id}`);
+          }}
         />
         <DeleteOutlined
           className="text-3xl text-red-500 cursor-pointer"

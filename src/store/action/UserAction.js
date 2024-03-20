@@ -6,11 +6,23 @@ export const getProfile = createAsyncThunk(
   async (data, { rejectWithValue }) => {
     try {
       const res = await userService.getProfile();
-      if (!res?.success) return rejectWithValue(res.error);
+      if (!res?.success) return rejectWithValue({ error: res.error });
       return res.data;
     } catch (error) {
-      const message = error.response.data.message;
-      return rejectWithValue(message);
+      return rejectWithValue({ error: error.message });
+    }
+  }
+);
+
+export const getDetailUser = createAsyncThunk(
+  "userDetail",
+  async (id, { rejectWithValue }) => {
+    try {
+      const res = await userService.getDetailUser(id);
+      if (!res?.success) return rejectWithValue({ error: res.error });
+      return res.data;
+    } catch (error) {
+      return rejectWithValue({ error: error.message });
     }
   }
 );

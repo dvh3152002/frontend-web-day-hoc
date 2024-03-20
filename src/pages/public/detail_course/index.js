@@ -10,7 +10,6 @@ import { setLoading } from "../../../store/slice/LoadingSlice";
 function DetailCourse() {
   const { id } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const [course, setCourse] = useState({});
 
   const getDetailCourse = async () => {

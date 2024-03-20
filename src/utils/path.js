@@ -14,12 +14,13 @@ const path = {
   DASHBOARD: "dashboard",
   MANAGE_USER: "user",
   CREATE_USER: "user/create",
-  MANAGE_POST: "manage-post",
-  MANAGE_COURSE: "manage-course",
+  EDIT_USER: "user/edit/:id",
+  MANAGE_POST: "post",
+  MANAGE_COURSE: "course",
   CREATE_COURSE: "course/create",
-  MANAGE_VIDEO: "manage-video",
-  MANAGE_CODE: "manage-code",
-  MANAGE_ORDER: "manage-order",
+  MANAGE_VIDEO: "video",
+  MANAGE_CODE: "code",
+  MANAGE_ORDER: "order",
 };
 
 export default path;

@@ -18,6 +18,8 @@ import DashBoard from "./pages/private/dashboard";
 import CreateCourse from "./pages/private/course/create-course";
 import ManageUser from "./pages/private/user/manage";
 import CreateUser from "./pages/private/user/create";
+import ManageCourse from "./pages/private/course/manage-course";
+import EditUser from "./pages/private/user/edit";
 
 function App() {
   const dispatch = useDispatch();
@@ -51,6 +53,8 @@ function App() {
             <Route path={path.DASHBOARD} element={<DashBoard />}></Route>
             <Route path={path.MANAGE_USER} element={<ManageUser />}></Route>
             <Route path={path.CREATE_USER} element={<CreateUser />}></Route>
+            <Route path={path.EDIT_USER} element={<EditUser />}></Route>
+            <Route path={path.MANAGE_COURSE} element={<ManageCourse />}></Route>
             <Route path={path.CREATE_COURSE} element={<CreateCourse />}></Route>
           </Route>
         </Routes>

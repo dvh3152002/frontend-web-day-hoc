@@ -14,3 +14,11 @@ export const getDetailCourse = async (id) => {
     method: "GET",
   });
 };
+
+export const createCourse = async (data) => {
+  return axios({
+    url: `/course`,
+    method: "POST",
+    data,
+  });
+};
