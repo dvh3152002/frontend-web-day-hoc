@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "antd";
-import { formatMoney } from "../../utils/helper";
+import { formatMoney, setUrlFile } from "../../utils/helper";
 import { Rate } from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -23,10 +23,10 @@ function Course(props) {
         className="cursor-pointer"
         cover={
           <img
-            alt={data.name}
+            alt={data?.name}
             src={
-              data.image
-                ? data.image
+              data?.image
+                ? setUrlFile(data?.image)
                 : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIgUj8mrkUcIsa9f-JmK1Tr7wzP2mZKBFKVw&usqp=CAU"
             }
             style={{ height: "180px" }}

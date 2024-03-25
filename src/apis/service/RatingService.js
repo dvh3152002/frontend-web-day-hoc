@@ -7,3 +7,10 @@ export const getListRating = async (params) => {
     params: params,
   });
 };
+
+export const deleteRating = async (id) => {
+  return axios({
+    url: `/rating/${id}`,
+    method: "DELETE",
+  });
+};

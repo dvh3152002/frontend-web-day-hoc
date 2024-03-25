@@ -6,7 +6,7 @@ import { setLoading } from "../../../../store/slice/LoadingSlice";
 import * as userService from "../../../../apis/service/UserService";
 import * as roleService from "../../../../apis/service/RoleService";
 import UploadImage from "../../../../components/upload-image";
-import { setFormData } from "../../../../utils/helper";
+import { setFormData, setUrlFile } from "../../../../utils/helper";
 import * as userAction from "../../../../store/action/UserAction";
 
 function EditUser() {
@@ -53,15 +53,16 @@ function EditUser() {
 
   const updateUser = async (data) => {
     const formData = setFormData(data);
+    dispatch(setLoading({ isLoading: true }));
     const res = await userService.updateUser(id, formData);
     if (res?.success) {
       message.success("Cập nhật người dùng thành công");
       navigate("/admin/user");
     } else message.error("Cập nhật người dùng thất bại");
+    dispatch(setLoading({ isLoading: false }));
   };
 
   const onFinish = () => {
-    console.log("user: ", user);
     updateUser({
       ...user,
       file: file,
@@ -143,7 +144,7 @@ function EditUser() {
         </Form.Item>
 
         <Form.Item
-          label="Quyền"
+          label="Vai trò"
           rules={[
             {
               required: true,
@@ -178,7 +179,10 @@ function EditUser() {
             ]
           }
         >
-          <UploadImage setFile={changeImage} url={user?.avatar} />
+          <UploadImage
+            setFile={changeImage}
+            url={user?.avatar && setUrlFile(user?.avatar)}
+          />
         </Form.Item>
 
         <Form.Item

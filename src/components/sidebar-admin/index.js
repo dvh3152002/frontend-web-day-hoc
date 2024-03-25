@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import {
   UserOutlined,
   DashboardOutlined,
-  MenuFoldOutlined,
+  ProfileOutlined,
   MoneyCollectOutlined,
 } from "@ant-design/icons";
 import { Menu, Typography } from "antd";
@@ -46,6 +46,13 @@ const items = [
       "listCourse"
     ),
   ]),
+  getItem("Quản lý bài viết", "post", <ProfileOutlined />, [
+    getItem(
+      <NavLink to="/admin/post/create">Thêm bài viết</NavLink>,
+      "createPost"
+    ),
+    getItem(<NavLink to="/admin/post">Danh sách bài viết</NavLink>, "listPost"),
+  ]),
   getItem("Quản lý đơn hàng", "order", <MoneyCollectOutlined />),
 ];
 
@@ -68,10 +75,10 @@ const SidebarAdmin = () => {
         openKeys={openKeys}
         onOpenChange={onOpenChange}
         style={{
-          minHeight: "100vh",
           padding: "10px 0",
+          minHeight: "100vh",
         }}
-        theme="dark"
+        theme="light"
         items={items}
       />
     </div>

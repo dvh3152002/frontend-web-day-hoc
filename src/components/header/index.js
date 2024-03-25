@@ -13,6 +13,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { logout } from "../../store/slice/UserSlice";
 import { getProfile } from "../../store/action/UserAction";
 import { useMediaQuery } from "react-responsive";
+import { setUrlFile } from "../../utils/helper";
 
 function Header() {
   const navigate = useNavigate();
@@ -101,7 +102,11 @@ function Header() {
       {isLoggedIn ? (
         <>
           <Popover content={content} placement="bottom" trigger="click">
-            <Avatar size={50} src={user?.avatar} icon={<UserOutlined />} />
+            <Avatar
+              size={50}
+              src={user?.avatar && setUrlFile(user?.avatar)}
+              icon={<UserOutlined />}
+            />
             <span>{user?.fullname}</span>
           </Popover>
         </>

@@ -1,4 +1,5 @@
 import { message } from "antd";
+import cloudinary from "cloudinary-core";
 
 export const formatMoney = (number) =>
   Number((Math.round(number / 1000) * 1000)?.toFixed(1)).toLocaleString();
@@ -33,4 +34,17 @@ export const setFormData = (data) => {
   formData.append("Content-Type", "multipart/form-data");
 
   return formData;
+};
+
+export const setUrlFile = (file) => {
+  const cloudinaryCore = new cloudinary.Cloudinary({ cloud_name: "dcylbuqrg" }); // Thay 'your_cloud_name' bằng tên cloud của bạn
+  const url = cloudinaryCore.url(file, {
+    resource_type: "image",
+    secure: true,
+  });
+  return url;
+};
+
+export const roundNumber = (number) => {
+  return number.toFixed(2);
 };

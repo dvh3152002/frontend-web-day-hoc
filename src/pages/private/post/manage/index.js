@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Typography, Table, Input, Space, Button, message, Modal } from "antd";
-import * as userService from "../../../../apis/service/UserService";
+import * as postService from "../../../../apis/service/PostService";
 import * as roleService from "../../../../apis/service/RoleService";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../store/slice/LoadingSlice";
@@ -10,9 +10,9 @@ import {
   DeleteOutlined,
 } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
-import * as userAction from "../../../../store/action/UserAction";
+import moment from "moment";
 
-function ManageUser() {
+function ManagePost() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { confirm } = Modal;
@@ -22,36 +22,30 @@ function ManageUser() {
   const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
 
-  const getListUser = async () => {
-    const res = await userService.getListUser(bodyData);
+  const getListPost = async () => {
+    const res = await postService.getListPost(bodyData);
     if (res.success) setData(res.data);
   };
 
-  const deleteUser = async (id) => {
+  const deletePost = async (id) => {
     dispatch(setLoading({ isLoading: true }));
-    const res = await userService.deleteUser(id);
+    const res = await postService.deletePost(id);
     if (res.success) {
-      message.success("Xóa người dùng thành công");
+      message.success("Xóa bài viết thành công");
       setUpdate(!update);
-    } else message.error("Xóa người dùng thất bại");
+    } else message.error("Xóa bài viết thất bại");
     dispatch(setLoading({ isLoading: false }));
-  };
-
-  const getListRole = async () => {
-    const res = await roleService.getListRole();
-    if (res.success) setRoleData(res.data.items);
   };
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
-    getListUser();
-    getListRole();
+    getListPost();
     dispatch(setLoading({ isLoading: false }));
   }, []);
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
-    getListUser();
+    getListPost();
     dispatch(setLoading({ isLoading: false }));
   }, [bodyData, update]);
 
@@ -179,12 +173,12 @@ function ManageUser() {
 
   const handleDelete = (record) => {
     confirm({
-      title: "Xóa người dùng",
-      content: "Bạn có chắc chắn muốn xóa người dùng này",
+      title: "Xóa bài viết",
+      content: "Bạn có chắc chắn muốn xóa bài viết này",
       okText: "Xóa",
       cancelText: "Hủy",
       onOk() {
-        deleteUser(record.id);
+        deletePost(record.id);
       },
     });
   };
@@ -195,7 +189,7 @@ function ManageUser() {
         <EditOutlined
           className="text-3xl text-orange-500 cursor-pointer mr-3"
           onClick={() => {
-            navigate(`/admin/user/edit/${record.id}`);
+            navigate(`/admin/post/edit/${record.id}`);
           }}
         />
         <DeleteOutlined
@@ -211,38 +205,36 @@ function ManageUser() {
       title: "STT",
       dataIndex: "stt",
       key: "stt",
+      width: "1%",
       render: (text, record, index) => index + 1,
     },
     {
-      title: "Họ tên",
-      dataIndex: "fullname",
-      key: "fullname",
-      width: "30%",
-      ...getColumnSearchProps("fullname"),
-    },
-    {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
+      title: "Tiêu đề",
+      dataIndex: "title",
+      key: "title",
       width: "20%",
-      ...getColumnSearchProps("email"),
+      ...getColumnSearchProps("title"),
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      key: "address",
-      ...getColumnSearchProps("address"),
+      title: "Mô tả",
+      dataIndex: "description",
+      key: "description",
+      width: "20%",
+      ...getColumnSearchProps("description"),
+    },
+    {
+      title: "Ngày viết",
+      dataIndex: "createDate",
+      key: "createDate",
+      render: (createDate) => <p>{moment(createDate).format("DD/MM/YYYY")}</p>,
       sortDirections: ["DESC", "ASC"],
     },
     {
-      title: "Vai trò",
-      dataIndex: "roles",
-      key: "roles",
-      render: (roles) => roles?.map((role) => role.name).join(", "),
-      filters: roleData.map((role) => ({
-        text: role.name,
-        value: role.id,
-      })),
+      title: "Số lượng code",
+      dataIndex: "countCode",
+      key: "countCode",
+      // render: (createDate) => <p>{moment(createDate).format("DD/MM/YYYY")}</p>,
+      sortDirections: ["DESC", "ASC"],
     },
     {
       title: "Hành động",
@@ -278,4 +270,4 @@ function ManageUser() {
   );
 }
 
-export default ManageUser;
+export default ManagePost;

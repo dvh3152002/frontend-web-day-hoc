@@ -15,8 +15,9 @@ import * as userService from "../../../../apis/service/UserService";
 import * as roleService from "../../../../apis/service/RoleService";
 import UploadImage from "../../../../components/upload-image";
 import { setFormData } from "../../../../utils/helper";
+import EditorCode from "../../../../components/editor-code";
 
-function CreateUser() {
+function CreatePost() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [roles, setRoles] = useState([]);
@@ -59,7 +60,7 @@ function CreateUser() {
   return (
     <div className="p-6">
       <Typography.Title className="border-b pb-2 pl-2">
-        Thêm người dùng
+        Thêm bài viết
       </Typography.Title>
       <Form
         name="basic"
@@ -79,12 +80,12 @@ function CreateUser() {
         }}
       >
         <Form.Item
-          label="Họ tên"
-          name="fullname"
+          label="Tiêu đề"
+          name="title"
           rules={[
             {
               required: true,
-              message: "Vui lòng nhập họ tên!",
+              message: "Vui lòng nhập tiêu đề!",
             },
           ]}
         >
@@ -92,83 +93,25 @@ function CreateUser() {
         </Form.Item>
 
         <Form.Item
-          label="Email"
-          name="email"
-          rules={[
-            {
-              type: "email",
-              message: "Không đúng định dạng email!",
-            },
-            {
-              required: true,
-              message: "Vui lòng nhập email!",
-            },
-          ]}
-        >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Địa chỉ"
-          name="address"
+          label="Mô tả"
+          name="description"
           rules={[
             {
               required: true,
-              message: "Vui lòng nhập địa chỉ!",
+              message: "Vui lòng nhập mô tả!",
             },
           ]}
         >
-          <Input />
-        </Form.Item>
-
-        <Form.Item
-          label="Password"
-          name="password"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng nhập mật khẩu!",
-            },
-          ]}
-        >
-          <Input.Password />
-        </Form.Item>
-
-        <Form.Item
-          label="Vai trò"
-          name="roles"
-          rules={[
-            {
-              required: true,
-              message: "Chọn quyền người dùng",
-            },
-          ]}
-        >
-          <Select
-            mode="multiple"
+          <Input.TextArea
+            rows={8}
             style={{
-              width: "50%",
+              resize: "none",
             }}
-            options={roles?.items?.map((role) => ({
-              value: role.id,
-              label: role.name,
-            }))}
           />
         </Form.Item>
 
-        <Form.Item
-          label="Ảnh đại diện"
-          name="file"
-          rules={
-            [
-              // {
-              //   required: true,
-              //   message: "Vui lòng chọn ảnh!",
-              // },
-            ]
-          }
-        >
-          <UploadImage setFile={changeImage} />
+        <Form.Item label="Mô tả" name="description">
+          {/* <EditorCode /> */}
         </Form.Item>
 
         <Form.Item
@@ -186,4 +129,4 @@ function CreateUser() {
   );
 }
 
-export default CreateUser;
+export default CreatePost;

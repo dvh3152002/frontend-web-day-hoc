@@ -1,57 +1,57 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Typography, Table, Input, Space, Button, message, Modal } from "antd";
-import * as userService from "../../../../apis/service/UserService";
-import * as roleService from "../../../../apis/service/RoleService";
-import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "../../../../store/slice/LoadingSlice";
 import {
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
-import { NavLink, useNavigate } from "react-router-dom";
-import * as userAction from "../../../../store/action/UserAction";
+  Typography,
+  Table,
+  Input,
+  Space,
+  Button,
+  message,
+  Modal,
+  Image,
+  Rate,
+} from "antd";
+import * as courseService from "../../../../apis/service/CourseService";
+import { useDispatch } from "react-redux";
+import { setLoading } from "../../../../store/slice/LoadingSlice";
+import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
+import { useNavigate } from "react-router-dom";
+import moment from "moment";
+import { formatMoney, setUrlFile } from "../../../../utils/helper";
+import { price, ratings } from "../../../../utils/contant";
 
-function ManageUser() {
+function ManageCourse() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { confirm } = Modal;
   const [data, setData] = useState([]);
-  const [roleData, setRoleData] = useState([]);
   const [bodyData, setBodyData] = useState({ limit: 10, start: 0 });
   const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
 
-  const getListUser = async () => {
-    const res = await userService.getListUser(bodyData);
+  const getListCourse = async () => {
+    const res = await courseService.getListCourse(bodyData);
     if (res.success) setData(res.data);
   };
 
   const deleteUser = async (id) => {
     dispatch(setLoading({ isLoading: true }));
-    const res = await userService.deleteUser(id);
+    const res = await courseService.deleteCourse(id);
     if (res.success) {
-      message.success("Xóa người dùng thành công");
+      message.success("Xóa khóa học thành công");
       setUpdate(!update);
-    } else message.error("Xóa người dùng thất bại");
+    } else message.error("Xóa khóa học thất bại");
     dispatch(setLoading({ isLoading: false }));
-  };
-
-  const getListRole = async () => {
-    const res = await roleService.getListRole();
-    if (res.success) setRoleData(res.data.items);
   };
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
-    getListUser();
-    getListRole();
+    getListCourse();
     dispatch(setLoading({ isLoading: false }));
   }, []);
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
-    getListUser();
+    getListCourse();
     dispatch(setLoading({ isLoading: false }));
   }, [bodyData, update]);
 
@@ -86,7 +86,6 @@ function ManageUser() {
   };
   const handleReset = (clearFilters) => {
     clearFilters();
-    setSearchText("");
   };
   const getColumnSearchProps = (dataIndex) => ({
     filterDropdown: ({
@@ -180,7 +179,7 @@ function ManageUser() {
   const handleDelete = (record) => {
     confirm({
       title: "Xóa người dùng",
-      content: "Bạn có chắc chắn muốn xóa người dùng này",
+      content: "Bạn có chắc chắn muốn xóa khóa học này",
       okText: "Xóa",
       cancelText: "Hủy",
       onOk() {
@@ -192,10 +191,10 @@ function ManageUser() {
   const renderAction = (record) => {
     return (
       <div>
-        <EditOutlined
-          className="text-3xl text-orange-500 cursor-pointer mr-3"
+        <EyeOutlined
+          className="text-3xl text-blue-500 cursor-pointer mr-3"
           onClick={() => {
-            navigate(`/admin/user/edit/${record.id}`);
+            navigate(`/admin/course/edit/${record.id}`);
           }}
         />
         <DeleteOutlined
@@ -211,38 +210,62 @@ function ManageUser() {
       title: "STT",
       dataIndex: "stt",
       key: "stt",
+      width: "2%",
       render: (text, record, index) => index + 1,
     },
     {
-      title: "Họ tên",
-      dataIndex: "fullname",
-      key: "fullname",
+      title: "Ảnh khóa học",
+      dataIndex: "image",
+      render: (image) => (
+        <Image src={setUrlFile(image)} width={150} height={100} />
+      ),
+    },
+    {
+      title: "Tên khóa học",
+      dataIndex: "name",
+      key: "name",
       width: "30%",
-      ...getColumnSearchProps("fullname"),
+      ...getColumnSearchProps("name"),
     },
     {
-      title: "Email",
-      dataIndex: "email",
-      key: "email",
-      width: "20%",
-      ...getColumnSearchProps("email"),
+      title: "Giá",
+      dataIndex: "price",
+      width: "7%",
+      render: (price) => `${formatMoney(price)}đ`,
+      filters: price.map((item) => ({
+        text: item.label,
+        value: item.value,
+      })),
     },
     {
-      title: "Địa chỉ",
-      dataIndex: "address",
-      key: "address",
-      ...getColumnSearchProps("address"),
+      title: "Ngày tạo",
+      dataIndex: "createDate",
+      key: "createDate",
+      width: "10%",
+      render: (createDate) => (
+        <span>{moment(createDate).format("DD/MM/YYYY")}</span>
+      ),
       sortDirections: ["DESC", "ASC"],
     },
     {
-      title: "Vai trò",
-      dataIndex: "roles",
-      key: "roles",
-      render: (roles) => roles?.map((role) => role.name).join(", "),
-      filters: roleData.map((role) => ({
-        text: role.name,
-        value: role.id,
+      title: "Rating",
+      dataIndex: "rating",
+      key: "rating",
+      render: (rating) => (
+        <Rate
+          disabled
+          allowHalf
+          defaultValue={rating}
+          style={{ fontSize: "12px" }}
+        />
+      ),
+
+      width: "10%",
+      filters: ratings.map((item) => ({
+        text: item.label,
+        value: item.value,
       })),
+      sortDirections: ["DESC", "ASC"],
     },
     {
       title: "Hành động",
@@ -278,4 +301,4 @@ function ManageUser() {
   );
 }
 
-export default ManageUser;
+export default ManageCourse;

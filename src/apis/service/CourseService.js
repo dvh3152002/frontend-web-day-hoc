@@ -22,3 +22,18 @@ export const createCourse = async (data) => {
     data,
   });
 };
+
+export const updateCourse = async (id, data) => {
+  return axios({
+    url: `/course/${id}`,
+    method: "PUT",
+    data,
+  });
+};
+
+export const deleteCourse = async (id) => {
+  return axios({
+    url: `/course/${id}`,
+    method: "DELETE",
+  });
+};

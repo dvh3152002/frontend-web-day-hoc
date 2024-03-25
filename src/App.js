@@ -15,11 +15,15 @@ import Courses from "./pages/public/course";
 import Loading from "./components/loading";
 import AdminTemplate from "./templates/admin";
 import DashBoard from "./pages/private/dashboard";
-import CreateCourse from "./pages/private/course/create-course";
+import CreateCourse from "./pages/private/course/create";
 import ManageUser from "./pages/private/user/manage";
 import CreateUser from "./pages/private/user/create";
-import ManageCourse from "./pages/private/course/manage-course";
+import ManageCourse from "./pages/private/course/manage";
 import EditUser from "./pages/private/user/edit";
+import EditCourse from "./pages/private/course/edit";
+import ManagePost from "./pages/private/post/manage";
+import CreatePost from "./pages/private/post/create";
+import EditPost from "./pages/private/post/edit";
 
 function App() {
   const dispatch = useDispatch();
@@ -56,6 +60,10 @@ function App() {
             <Route path={path.EDIT_USER} element={<EditUser />}></Route>
             <Route path={path.MANAGE_COURSE} element={<ManageCourse />}></Route>
             <Route path={path.CREATE_COURSE} element={<CreateCourse />}></Route>
+            <Route path={path.EDIT_COURSE} element={<EditCourse />}></Route>
+            <Route path={path.MANAGE_POST} element={<ManagePost />}></Route>
+            <Route path={path.CREATE_POST} element={<CreatePost />}></Route>
+            <Route path={path.EDIT_POST} element={<EditPost />}></Route>
           </Route>
         </Routes>
       </div>

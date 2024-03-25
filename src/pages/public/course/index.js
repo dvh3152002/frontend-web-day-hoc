@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useParams, useSearchParams } from "react-router-dom";
 import { Col, Row } from "antd";
 import * as courseService from "../../../apis/service/CourseService";
@@ -66,9 +66,17 @@ function Courses() {
       setDataParam({ ...dataParam, minPrice: parts[0] });
     }
   };
-
+  const timeoutRef = useRef(null);
   const handleChangeInput = (e) => {
-    setDataParam({ ...dataParam, keywords: e.target.value });
+    // Clear existing timeout
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+
+    // Set a new timeout
+    timeoutRef.current = setTimeout(() => {
+      setDataParam({ ...dataParam, keywords: e.target.value });
+    }, 1000); // Adjust timeout duration as needed
   };
 
   return (
