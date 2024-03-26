@@ -10,16 +10,16 @@ import {
   message,
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
-import * as categoryAction from "../../store/action/CategoryAction";
-import * as userService from "../../apis/service/UserService";
-import * as courseAction from "../../store/action/CourseAction";
-import * as courseService from "../../apis/service/CourseService";
-import { setLoading } from "../../store/slice/LoadingSlice";
-import MarkdownEditor from "../markdown";
-import { setFormData, setUrlFile } from "../../utils/helper";
-import UploadImage from "../upload-image";
+import * as categoryAction from "../../../../store/action/CategoryAction";
+import * as userService from "../../../../apis/service/UserService";
+import * as courseAction from "../../../../store/action/CourseAction";
+import * as courseService from "../../../../apis/service/CourseService";
+import { setLoading } from "../../../../store/slice/LoadingSlice";
+import MarkdownEditor from "../../../../components/markdown";
+import { setFormData } from "../../../../utils/helper";
+import UploadImage from "../../../../components/upload-image";
 
-function DetailCourse(props) {
+function DetailCourse() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { categories } = useSelector((state) => state.categories);
@@ -213,10 +213,7 @@ function DetailCourse(props) {
 
         <Form.Item label="Ảnh" name="file">
           <div className="avatar flex gap-3">
-            <UploadImage
-              setFile={changeImage}
-              url={setUrlFile(course?.image)}
-            />
+            <UploadImage setFile={changeImage} url={course?.image} />
             {/* <Upload onChange={handleChangeAvatar} maxCount={1}>
         <Button icon={<UploadOutlined />}>Select File</Button>
       </Upload>

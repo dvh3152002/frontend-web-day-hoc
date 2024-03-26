@@ -4,11 +4,7 @@ import * as postService from "../../../../apis/service/PostService";
 import * as roleService from "../../../../apis/service/RoleService";
 import { useDispatch, useSelector } from "react-redux";
 import { setLoading } from "../../../../store/slice/LoadingSlice";
-import {
-  SearchOutlined,
-  EditOutlined,
-  DeleteOutlined,
-} from "@ant-design/icons";
+import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import moment from "moment";
 
@@ -64,11 +60,12 @@ function ManagePost() {
       }
     });
     setBodyData({
+      ...bodyData,
+      ...filteredData,
       start: pagination.current - 1,
       limit: pagination.pageSize,
       sortField: sorter.field,
       sortType: sorter.order,
-      ...filteredData,
     });
   };
 
@@ -186,8 +183,8 @@ function ManagePost() {
   const renderAction = (record) => {
     return (
       <div>
-        <EditOutlined
-          className="text-3xl text-orange-500 cursor-pointer mr-3"
+        <EyeOutlined
+          className="text-3xl text-blue-500 cursor-pointer mr-3"
           onClick={() => {
             navigate(`/admin/post/edit/${record.id}`);
           }}
@@ -219,8 +216,13 @@ function ManagePost() {
       title: "Mô tả",
       dataIndex: "description",
       key: "description",
-      width: "20%",
-      ...getColumnSearchProps("description"),
+      render: (description) => (
+        <div
+          className="mb-5"
+          dangerouslySetInnerHTML={{ __html: description }}
+        ></div>
+      ),
+      width: "40%",
     },
     {
       title: "Ngày viết",

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { Typography, Table, Input, Space, Button, message, Modal } from "antd";
 import * as lessonService from "../../../../apis/service/LessonService";
 import { useDispatch, useSelector } from "react-redux";
@@ -13,7 +13,7 @@ import ModalLesson from "../../../../components/modal/lesson";
 import moment from "moment";
 import { setFormData } from "../../../../utils/helper";
 
-function ManageLesson() {
+function ManageLesson(props) {
   const { id } = useParams();
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -114,6 +114,7 @@ function ManageLesson() {
   // Các hàm xử lý sự kiện sắp xếp
   const handleTableChange = (pagination, filters, sorter) => {
     setBodyData({
+      ...bodyData,
       start: pagination.current - 1,
       limit: pagination.pageSize,
       sortField: sorter.field,
@@ -268,12 +269,12 @@ function ManageLesson() {
       title: "Video",
       dataIndex: "video",
       key: "video",
-      render: (video) => (
-        // <ReactPlayer width={450} height={300} url={setUrlVideo(video)} />
-        <video controls width="250" height="200">
-          <source src={video} type="video/mp4" alt="" />
-        </video>
-      ),
+      // render: (video) => (
+      //   // <ReactPlayer width={450} height={300} url={setUrlVideo(video)} />
+      //   <video controls width="250" height="200">
+      //     <source src={video} type="video/mp4" alt="" />
+      //   </video>
+      // ),
       width: "30%",
     },
     {
@@ -335,4 +336,4 @@ function ManageLesson() {
   );
 }
 
-export default ManageLesson;
+export default memo(ManageLesson);

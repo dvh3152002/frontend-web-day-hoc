@@ -16,7 +16,7 @@ import { setLoading } from "../../../../store/slice/LoadingSlice";
 import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
-import { formatMoney, setUrlFile } from "../../../../utils/helper";
+import { formatMoney } from "../../../../utils/helper";
 import { price, ratings } from "../../../../utils/contant";
 
 function ManageCourse() {
@@ -24,7 +24,7 @@ function ManageCourse() {
   const dispatch = useDispatch();
   const { confirm } = Modal;
   const [data, setData] = useState([]);
-  const [bodyData, setBodyData] = useState({ limit: 10, start: 0 });
+  const [bodyData, setBodyData] = useState({ limit: 5, start: 0 });
   const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
 
@@ -70,11 +70,12 @@ function ManageCourse() {
       }
     });
     setBodyData({
+      ...bodyData,
+      ...filteredData,
       start: pagination.current - 1,
       limit: pagination.pageSize,
       sortField: sorter.field,
       sortType: sorter.order,
-      ...filteredData,
     });
   };
 
@@ -216,9 +217,7 @@ function ManageCourse() {
     {
       title: "Ảnh khóa học",
       dataIndex: "image",
-      render: (image) => (
-        <Image src={setUrlFile(image)} width={150} height={100} />
-      ),
+      render: (image) => <Image src={image} width={150} height={100} />,
     },
     {
       title: "Tên khóa học",
@@ -285,7 +284,7 @@ function ManageCourse() {
         pagination={{
           defaultPageSize: bodyData.limit,
           showSizeChanger: true,
-          pageSizeOptions: ["10", "25", "50"],
+          pageSizeOptions: ["5", "10", "25", "50"],
           total: data.total,
         }}
         onChange={handleTableChange} // Xử lý sự kiện sắp xếp

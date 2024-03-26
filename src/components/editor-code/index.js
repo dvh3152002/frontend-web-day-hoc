@@ -1,37 +1,37 @@
-import React, { useState } from "react";
-import AceEditor from "react-ace";
-
-// Import các ngôn ngữ và theme bạn muốn sử dụng
-import "ace-builds/src-noconflict/mode-javascript";
-import "ace-builds/src-noconflict/theme-monokai";
+import React, { useRef, useState } from "react";
+import { Editor } from "@monaco-editor/react";
+import Output from "./Output";
+import { Row, Col } from "antd";
 
 const EditorCode = () => {
-  const [code, setCode] = useState("");
+  const editorRef = useRef();
+  const [value, setValue] = useState("");
 
-  const onChange = (newCode) => {
-    setCode(newCode);
+  const onMount = (editor) => {
+    editorRef.current = editor;
+    editor.focus();
   };
 
   return (
-    <>
-      <AceEditor
-        mode="java" // Cấu hình ngôn ngữ
-        theme="monokai" // Cấu hình theme
-        onChange={onChange} // Xử lý sự kiện thay đổi nội dung
-        name="UNIQUE_ID_OF_DIV" // Tên duy nhất của div
-        editorProps={{ $blockScrolling: true }}
-        value={`public class Main {
-        public static void main(String[] args) {
-          if (20 > 18) {
-            System.out.println("20 is greater than 18"); // obviously
-          }
-        }
-      }`} // Nội dung hiện tại của trình soạn thảo
-        fontSize={14} // Kích thước font
-        width="100%" // Chiều rộng
-        height="500px" // Chiều cao
-      />
-    </>
+    <div className="container m-auto">
+      <Row className="min-h-screen mt-3">
+        <Col span={15} className="mt-[32px]">
+          <Editor
+            defaultLanguage="java"
+            defaultValue={`public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello");\n  }\n}`}
+            value={value}
+            onChange={(value) => setValue(value)}
+            onMount={onMount}
+            height="300px"
+            className="border-2 p-2"
+          />
+        </Col>
+        <Col span={1}></Col>
+        <Col span={8}>
+          <Output editorRef={editorRef} />
+        </Col>
+      </Row>
+    </div>
   );
 };
 

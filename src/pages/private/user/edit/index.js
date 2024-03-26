@@ -6,7 +6,7 @@ import { setLoading } from "../../../../store/slice/LoadingSlice";
 import * as userService from "../../../../apis/service/UserService";
 import * as roleService from "../../../../apis/service/RoleService";
 import UploadImage from "../../../../components/upload-image";
-import { setFormData, setUrlFile } from "../../../../utils/helper";
+import { setFormData } from "../../../../utils/helper";
 import * as userAction from "../../../../store/action/UserAction";
 
 function EditUser() {
@@ -24,13 +24,13 @@ function EditUser() {
   };
 
   const getUser = async () => {
+    dispatch(setLoading({ isLoading: true }));
     dispatch(userAction.getDetailUser(id));
+    dispatch(setLoading({ isLoading: false }));
   };
 
   useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
     getListRole();
-    dispatch(setLoading({ isLoading: false }));
   }, [id]);
 
   useEffect(() => {
@@ -179,10 +179,7 @@ function EditUser() {
             ]
           }
         >
-          <UploadImage
-            setFile={changeImage}
-            url={user?.avatar && setUrlFile(user?.avatar)}
-          />
+          <UploadImage setFile={changeImage} url={user?.avatar} />
         </Form.Item>
 
         <Form.Item

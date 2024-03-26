@@ -1,6 +1,6 @@
 import React from "react";
 import { Card } from "antd";
-import { formatMoney, setUrlFile } from "../../utils/helper";
+import { formatMoney } from "../../utils/helper";
 import { Rate } from "antd";
 import { useNavigate } from "react-router-dom";
 
@@ -26,7 +26,7 @@ function Course(props) {
             alt={data?.name}
             src={
               data?.image
-                ? setUrlFile(data?.image)
+                ? data?.image
                 : "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSIgUj8mrkUcIsa9f-JmK1Tr7wzP2mZKBFKVw&usqp=CAU"
             }
             style={{ height: "180px" }}

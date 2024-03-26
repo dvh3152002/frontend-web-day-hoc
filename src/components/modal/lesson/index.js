@@ -1,10 +1,15 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Input, Modal, Form, Button, Upload, message } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 
 const ModalLesson = (props) => {
   const { isModalOpen, handleCancel, setLesson, idCourse, lesson } = props;
   const [file, setFile] = useState({});
+  const [video, setVideo] = useState();
+
+  useEffect(() => {
+    setVideo(lesson?.video);
+  }, [lesson]);
 
   const onFinish = (values) => {
     // console.log("values: ", values);
@@ -12,7 +17,7 @@ const ModalLesson = (props) => {
     //   message.error("Vui lòng chọn video!");
     //   return;
     // }
-    setLesson({ ...values, file: file, idCourse: idCourse, id: lesson?.id });
+    setLesson({ ...values, video: file, idCourse: idCourse, id: lesson?.id });
   };
 
   const beforeUpload = (file) => {
@@ -74,6 +79,9 @@ const ModalLesson = (props) => {
           >
             <Button icon={<UploadOutlined />}>Click để tải lên</Button>
           </Upload>
+          <video controls className="w-full mt-3" height="300">
+            <source src={video} type="video/mp4" alt="" />
+          </video>
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

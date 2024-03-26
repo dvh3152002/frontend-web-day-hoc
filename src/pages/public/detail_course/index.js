@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { Row, Col, Button, Typography, Rate, Pagination } from "antd";
-import { formatMoney, setUrlFile } from "../../../utils/helper";
+import { formatMoney } from "../../../utils/helper";
 import * as courseService from "../../../apis/service/CourseService";
 import Rating from "../../../components/rating";
 import { setLoading } from "../../../store/slice/LoadingSlice";
@@ -81,7 +81,7 @@ function DetailCourse() {
           <div className="w-full">
             <img
               style={{ height: "300px", width: "100%" }}
-              src={setUrlFile(course?.image)}
+              src={course?.image}
               alt={course.name}
             />
           </div>

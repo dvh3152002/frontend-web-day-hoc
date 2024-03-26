@@ -11,51 +11,47 @@ import {
 } from "antd";
 import { useSelector, useDispatch } from "react-redux";
 import { setLoading } from "../../../../store/slice/LoadingSlice";
-import * as userService from "../../../../apis/service/UserService";
-import * as roleService from "../../../../apis/service/RoleService";
-import UploadImage from "../../../../components/upload-image";
+import * as postService from "../../../../apis/service/PostService";
 import { setFormData } from "../../../../utils/helper";
-import EditorCode from "../../../../components/editor-code";
+import MarkdownEditor from "../../../../components/markdown";
 
 function CreatePost() {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [roles, setRoles] = useState([]);
-  const [file, setFile] = useState();
 
-  const getListRole = async () => {
-    const res = await roleService.getListRole();
-    if (res.success) setRoles(res.data);
-  };
+  const [invalidField, setInvalidField] = useState("");
+  const [description, setDescription] = useState();
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
-    getListRole();
+
     dispatch(setLoading({ isLoading: false }));
   }, []);
 
-  const changeImage = useCallback(
-    (file) => {
-      setFile(file);
-    },
-    [file]
-  );
-
-  const createUser = async (data) => {
-    const formData = setFormData(data);
-    const res = await userService.createUser(formData);
+  const createPost = async (data) => {
+    const res = await postService.createPost(data);
     if (res?.success) {
-      message.success("Thêm người dùng thành công");
-      navigate("/admin/user");
-    } else message.error("Thêm người dùng thất bại");
+      message.success("Thêm bài viết thành công");
+      navigate("/admin/post");
+    } else message.error("Thêm bài viết thất bại");
   };
 
   const onFinish = (data) => {
-    createUser({
-      ...data,
-      file: file,
-    });
+    if (!description) setInvalidField("Vui lòng nhập vào mô tả khóa học!");
+    else {
+      createPost({
+        ...data,
+        description: description,
+      });
+    }
   };
+
+  const changeValue = useCallback(
+    (e) => {
+      setDescription(e);
+    },
+    [description]
+  );
 
   return (
     <div className="p-6">
@@ -92,26 +88,11 @@ function CreatePost() {
           <Input />
         </Form.Item>
 
-        <Form.Item
-          label="Mô tả"
-          name="description"
-          rules={[
-            {
-              required: true,
-              message: "Vui lòng nhập mô tả!",
-            },
-          ]}
-        >
-          <Input.TextArea
-            rows={8}
-            style={{
-              resize: "none",
-            }}
-          />
-        </Form.Item>
-
         <Form.Item label="Mô tả" name="description">
-          {/* <EditorCode /> */}
+          <MarkdownEditor name="description" changeValue={changeValue} />
+          {invalidField && (
+            <small className="text-red-500 text-sm">{invalidField}</small>
+          )}
         </Form.Item>
 
         <Form.Item

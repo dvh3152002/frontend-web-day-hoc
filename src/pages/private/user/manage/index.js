@@ -23,36 +23,70 @@ function ManageUser() {
   const [rowSelection, setRowSelection] = useState();
 
   const getListUser = async () => {
-    const res = await userService.getListUser(bodyData);
-    if (res.success) setData(res.data);
+    dispatch(setLoading({ isLoading: true }));
+    try {
+      const res = await userService.getListUser(bodyData);
+      if (res.success) setData(res.data);
+    } catch (error) {
+      message.error("Đã xảy ra lỗi khi tải danh sách người dùng");
+    }
+    const setTimeoutId = setTimeout(() => {
+      dispatch(setLoading({ isLoading: false }));
+    }, 1000);
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
   };
 
   const deleteUser = async (id) => {
     dispatch(setLoading({ isLoading: true }));
-    const res = await userService.deleteUser(id);
-    if (res.success) {
-      message.success("Xóa người dùng thành công");
-      setUpdate(!update);
-    } else message.error("Xóa người dùng thất bại");
+    try {
+      const res = await userService.deleteUser(id);
+      if (res.success) {
+        message.success("Xóa người dùng thành công");
+        setUpdate(!update);
+      } else {
+        message.error("Xóa người dùng thất bại");
+      }
+    } catch (error) {
+      message.error("Đã xảy ra lỗi khi xóa người dùng");
+    }
     dispatch(setLoading({ isLoading: false }));
   };
 
   const getListRole = async () => {
+    dispatch(setLoading({ isLoading: true }));
     const res = await roleService.getListRole();
     if (res.success) setRoleData(res.data.items);
+    const setTimeoutId = setTimeout(() => {
+      dispatch(setLoading({ isLoading: false }));
+    }, 1000);
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
   };
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
     getListUser();
     getListRole();
-    dispatch(setLoading({ isLoading: false }));
+    const setTimeoutId = setTimeout(() => {
+      dispatch(setLoading({ isLoading: false }));
+    }, 5000);
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
   }, []);
 
   useEffect(() => {
     dispatch(setLoading({ isLoading: true }));
     getListUser();
-    dispatch(setLoading({ isLoading: false }));
+    const setTimeoutId = setTimeout(() => {
+      dispatch(setLoading({ isLoading: false }));
+    }, 5000);
+    return () => {
+      clearTimeout(setTimeoutId);
+    };
   }, [bodyData, update]);
 
   // Các hàm xử lý sự kiện sắp xếp
@@ -70,11 +104,12 @@ function ManageUser() {
       }
     });
     setBodyData({
+      ...bodyData,
+      ...filteredData,
       start: pagination.current - 1,
       limit: pagination.pageSize,
       sortField: sorter.field,
       sortType: sorter.order,
-      ...filteredData,
     });
   };
 

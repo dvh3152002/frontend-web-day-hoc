@@ -1,26 +1,28 @@
 import React from "react";
 import { useParams } from "react-router-dom";
 import { Tabs } from "antd";
-import DetailCourse from "../../../../components/course-detail";
+import DetailCourse from "../detail";
 import Rating from "../../../../components/rating";
 import ManageLesson from "../../lesson/manage";
 
 function EditCourse() {
+  const { id } = useParams();
+
   const tabs = [
     {
       label: `Thông tin khóa học`,
       key: 1,
-      children: <DetailCourse />,
+      children: <DetailCourse id={id} />,
     },
     {
       label: `Bài giảng khóa học`,
       key: 2,
-      children: <ManageLesson />,
+      children: <ManageLesson id={id} />,
     },
     {
       label: `Đánh giá khóa học`,
       key: 3,
-      children: <Rating isDelete={true} />,
+      children: <Rating isDelete={true} id={id} />,
     },
   ];
 
