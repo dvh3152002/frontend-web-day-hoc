@@ -20,7 +20,6 @@ export const updateCourse = createAsyncThunk(
   async (id, data, { rejectWithValue }) => {
     try {
       const res = await courseService.updateCourse(id, data);
-      console.log("res: ", res);
       if (!res?.success) return rejectWithValue(res.error);
       return res.data;
     } catch (error) {

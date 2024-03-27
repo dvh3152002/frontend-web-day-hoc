@@ -11,49 +11,36 @@ import {
   Rate,
 } from "antd";
 import * as courseService from "../../../../apis/service/CourseService";
-import { useDispatch } from "react-redux";
-import { setLoading } from "../../../../store/slice/LoadingSlice";
 import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import { formatMoney } from "../../../../utils/helper";
 import { price, ratings } from "../../../../utils/contant";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import LoadingComponent from "../../../../components/loading";
+import { useDeleteCourse } from "../../../../apis/hooks/courseMutationHook";
 
 function ManageCourse() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { confirm } = Modal;
-  const [data, setData] = useState([]);
   const [bodyData, setBodyData] = useState({ limit: 5, start: 0 });
-  const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
+  const queryClient = useQueryClient();
 
   const getListCourse = async () => {
     const res = await courseService.getListCourse(bodyData);
-    if (res.success) setData(res.data);
+    return res;
   };
 
-  const deleteUser = async (id) => {
-    dispatch(setLoading({ isLoading: true }));
-    const res = await courseService.deleteCourse(id);
-    if (res.success) {
-      message.success("Xóa khóa học thành công");
-      setUpdate(!update);
-    } else message.error("Xóa khóa học thất bại");
-    dispatch(setLoading({ isLoading: false }));
-  };
+  const { data: courses, isLoading } = useQuery({
+    queryKey: ["courses", bodyData],
+    queryFn: getListCourse,
+  });
 
   useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
     getListCourse();
-    dispatch(setLoading({ isLoading: false }));
+    queryClient.invalidateQueries(["courses", bodyData]);
   }, []);
-
-  useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListCourse();
-    dispatch(setLoading({ isLoading: false }));
-  }, [bodyData, update]);
 
   // Các hàm xử lý sự kiện sắp xếp
   const handleTableChange = (pagination, filters, sorter) => {
@@ -177,14 +164,16 @@ function ManageCourse() {
       ),
   });
 
+  const { mutate, isPending } = useDeleteCourse();
+
   const handleDelete = (record) => {
     confirm({
       title: "Xóa người dùng",
       content: "Bạn có chắc chắn muốn xóa khóa học này",
       okText: "Xóa",
       cancelText: "Hủy",
-      onOk() {
-        deleteUser(record.id);
+      async onOk() {
+        mutate(record.id);
       },
     });
   };
@@ -278,24 +267,26 @@ function ManageCourse() {
       <Typography.Title className="border-b pb-2">
         Danh sách người dùng
       </Typography.Title>
-      <Table
-        columns={columns}
-        dataSource={data.items}
-        pagination={{
-          defaultPageSize: bodyData.limit,
-          showSizeChanger: true,
-          pageSizeOptions: ["5", "10", "25", "50"],
-          total: data.total,
-        }}
-        onChange={handleTableChange} // Xử lý sự kiện sắp xếp
-        onRow={(record, rowIndex) => {
-          return {
-            onClick: (event) => {
-              setRowSelection(record.id);
-            }, // click row
-          };
-        }}
-      />
+      <LoadingComponent isLoading={isLoading || isPending}>
+        <Table
+          columns={columns}
+          dataSource={courses?.data?.items}
+          pagination={{
+            defaultPageSize: bodyData.limit,
+            showSizeChanger: true,
+            pageSizeOptions: ["5", "10", "25", "50"],
+            total: courses?.data?.total,
+          }}
+          onChange={handleTableChange} // Xử lý sự kiện sắp xếp
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                setRowSelection(record.id);
+              }, // click row
+            };
+          }}
+        />
+      </LoadingComponent>
     </div>
   );
 }

@@ -7,43 +7,26 @@ import { setLoading } from "../../../../store/slice/LoadingSlice";
 import { SearchOutlined, EyeOutlined, DeleteOutlined } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
 import moment from "moment";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useDeletePost } from "../../../../apis/hooks/postMutationHook";
+import LoadingComponent from "../../../../components/loading";
 
 function ManagePost() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { confirm } = Modal;
-  const [data, setData] = useState([]);
-  const [roleData, setRoleData] = useState([]);
   const [bodyData, setBodyData] = useState({ limit: 10, start: 0 });
-  const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
+  const queryClient = useQueryClient();
 
   const getListPost = async () => {
     const res = await postService.getListPost(bodyData);
-    if (res.success) setData(res.data);
+    return res;
   };
 
-  const deletePost = async (id) => {
-    dispatch(setLoading({ isLoading: true }));
-    const res = await postService.deletePost(id);
-    if (res.success) {
-      message.success("Xóa bài viết thành công");
-      setUpdate(!update);
-    } else message.error("Xóa bài viết thất bại");
-    dispatch(setLoading({ isLoading: false }));
-  };
-
-  useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListPost();
-    dispatch(setLoading({ isLoading: false }));
-  }, []);
-
-  useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListPost();
-    dispatch(setLoading({ isLoading: false }));
-  }, [bodyData, update]);
+  const { data: posts, isLoading } = useQuery({
+    queryKey: ["posts", bodyData],
+    queryFn: getListPost,
+  });
 
   // Các hàm xử lý sự kiện sắp xếp
   const handleTableChange = (pagination, filters, sorter) => {
@@ -168,6 +151,8 @@ function ManagePost() {
       ),
   });
 
+  const { mutate, isPending } = useDeletePost();
+
   const handleDelete = (record) => {
     confirm({
       title: "Xóa bài viết",
@@ -175,7 +160,7 @@ function ManagePost() {
       okText: "Xóa",
       cancelText: "Hủy",
       onOk() {
-        deletePost(record.id);
+        mutate(record.id);
       },
     });
   };
@@ -250,24 +235,26 @@ function ManagePost() {
       <Typography.Title className="border-b pb-2">
         Danh sách người dùng
       </Typography.Title>
-      <Table
-        columns={columns}
-        dataSource={data.items}
-        pagination={{
-          defaultPageSize: bodyData.limit,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "25", "50"],
-          total: data.total,
-        }}
-        onChange={handleTableChange} // Xử lý sự kiện sắp xếp
-        onRow={(record, rowIndex) => {
-          return {
-            onClick: (event) => {
-              setRowSelection(record.id);
-            }, // click row
-          };
-        }}
-      />
+      <LoadingComponent isLoading={isLoading || isPending}>
+        <Table
+          columns={columns}
+          dataSource={posts?.data?.items}
+          pagination={{
+            defaultPageSize: bodyData.limit,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "25", "50"],
+            total: posts?.data?.total,
+          }}
+          onChange={handleTableChange} // Xử lý sự kiện sắp xếp
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                setRowSelection(record.id);
+              }, // click row
+            };
+          }}
+        />
+      </LoadingComponent>
     </div>
   );
 }

@@ -5,11 +5,11 @@ import * as courseService from "../../../apis/service/CourseService";
 import Course from "../../../components/course";
 import { useMediaQuery } from "react-responsive";
 import { Typography, Pagination, Select, Input } from "antd";
-import SearchItem from "../../../components/search-item";
 import { useDispatch, useSelector } from "react-redux";
 import { price, ratings, sortCourse } from "../../../utils/contant";
 import * as categoryAction from "../../../store/action/CategoryAction";
-import { setLoading } from "../../../store/slice/LoadingSlice";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import LoadingComponent from "../../../components/loading";
 
 function Courses() {
   const { category } = useParams();
@@ -17,7 +17,6 @@ function Courses() {
   const [dataParam, setDataParam] = useState({
     idCategory: category !== "all" ? category : null,
   });
-  const [courses, setCourses] = useState([]);
   const { categories } = useSelector((state) => state.categories);
 
   const dispatch = useDispatch();
@@ -33,14 +32,17 @@ function Courses() {
   });
 
   const getListCourse = async () => {
-    dispatch(setLoading({ isLoading: true }));
-
     const res = await courseService.getListCourse({
       ...dataParam,
     });
-    if (res.success) setCourses(res.data);
-    dispatch(setLoading({ isLoading: false }));
+    return res;
   };
+
+  const { data: courses, isLoading } = useQuery({
+    queryKey: ["courses", dataParam],
+    queryFn: getListCourse,
+  });
+
   useEffect(() => {
     getListCourse();
   }, [dataParam]);
@@ -152,11 +154,11 @@ function Courses() {
       <Typography.Title className="text-center">
         Danh sách khóa học
       </Typography.Title>
-      <div>
-        {courses?.items?.length > 0 ? (
+      <LoadingComponent isLoading={isLoading}>
+        {courses?.data?.items?.length > 0 ? (
           <>
             <Row>
-              {courses.items.map((item) => {
+              {courses?.data.items.map((item) => {
                 return (
                   <Col
                     span={isDesktopOrLaptop ? 6 : isTablet ? 8 : 24}
@@ -178,14 +180,14 @@ function Courses() {
               // showSizeChanger
               className="text-center mt-5 cursor-pointer"
               defaultCurrent={1}
-              total={courses?.total}
+              total={courses?.data?.total}
               onChange={handleChangePage}
             />
           </>
         ) : (
           "Không có khóa học phù hợp"
         )}
-      </div>
+      </LoadingComponent>
     </div>
   );
 }

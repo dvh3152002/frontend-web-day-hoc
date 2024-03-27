@@ -15,7 +15,6 @@ function MarkdownEditor(props) {
             "undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | link image media table | align lineheight | numlist bullist indent outdent | emoticons charmap | removeformat",
         }}
         onChange={(e) => changeValue(e.target.getContent())}
-        {...props}
       />
     </div>
   );

@@ -8,12 +8,12 @@ import * as roleService from "../../../../apis/service/RoleService";
 import UploadImage from "../../../../components/upload-image";
 import { setFormData } from "../../../../utils/helper";
 import * as userAction from "../../../../store/action/UserAction";
+import { useQuery } from "@tanstack/react-query";
+import { useUpdateUser } from "../../../../apis/hooks/userMutationHook";
 
 function EditUser() {
   const { id } = useParams();
-  const { userDetail } = useSelector((state) => state.user);
-  const navigate = useNavigate();
-  const dispatch = useDispatch();
+  // const dispatch = useDispatch();
   const [roles, setRoles] = useState([]);
   const [file, setFile] = useState();
   const [user, setUser] = useState({});
@@ -23,24 +23,26 @@ function EditUser() {
     if (res.success) setRoles(res.data);
   };
 
-  const getUser = async () => {
-    dispatch(setLoading({ isLoading: true }));
-    dispatch(userAction.getDetailUser(id));
-    dispatch(setLoading({ isLoading: false }));
-  };
-
   useEffect(() => {
     getListRole();
-  }, [id]);
+  }, []);
+
+  const getDetailUser = async () => {
+    const res = await userService.getDetailUser(id);
+    return res;
+  };
+
+  const { data: userDetail, isLoading } = useQuery({
+    queryKey: ["course", id],
+    queryFn: getDetailUser,
+  });
 
   useEffect(() => {
-    getUser();
-  }, [dispatch]);
+    const data = userDetail?.data;
 
-  useEffect(() => {
     setUser({
-      ...userDetail,
-      roles: userDetail?.roles?.map((role) => role.id),
+      ...data,
+      roles: data?.roles?.map((role) => role.id),
     });
   }, [userDetail]);
 
@@ -51,19 +53,11 @@ function EditUser() {
     [file]
   );
 
-  const updateUser = async (data) => {
-    const formData = setFormData(data);
-    dispatch(setLoading({ isLoading: true }));
-    const res = await userService.updateUser(id, formData);
-    if (res?.success) {
-      message.success("Cập nhật người dùng thành công");
-      navigate("/admin/user");
-    } else message.error("Cập nhật người dùng thất bại");
-    dispatch(setLoading({ isLoading: false }));
-  };
+  const { mutate } = useUpdateUser();
 
   const onFinish = () => {
-    updateUser({
+    mutate({
+      id: id,
       ...user,
       file: file,
     });

@@ -79,9 +79,11 @@ const ModalLesson = (props) => {
           >
             <Button icon={<UploadOutlined />}>Click để tải lên</Button>
           </Upload>
-          <video controls className="w-full mt-3" height="300">
-            <source src={video} type="video/mp4" alt="" />
-          </video>
+          {video && (
+            <video controls className="w-full mt-3" height="300">
+              <source src={video} type="video/mp4" alt="" />
+            </video>
+          )}
         </Form.Item>
 
         <Form.Item wrapperCol={{ offset: 8, span: 16 }}>

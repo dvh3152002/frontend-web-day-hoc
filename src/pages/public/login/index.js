@@ -1,30 +1,14 @@
 import { Button, Form, Input, Typography, message } from "antd";
 import { NavLink } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import * as userService from "../../../apis/service/UserService";
-import { useDispatch } from "react-redux";
-import { login } from "../../../store/slice/UserSlice";
-import { setLoading } from "../../../store/slice/LoadingSlice";
+import LoadingComponet from "../../../components/loading/index";
+import { useLogin } from "../../../apis/hooks/authMutationHook";
 
 function Login() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
+  const { mutate, isPending } = useLogin();
   const onSubmit = async (data) => {
-    dispatch(setLoading({ isLoading: true }));
-    const res = await userService.login(data);
-    if (res?.success) {
-      dispatch(
-        login({
-          isLoggedIn: true,
-          accessToken: res.data.accessToken,
-          role: res.data.roles,
-        })
-      );
-      navigate("/");
-    } else {
-      message.error("Sai thông tin đăng nhập");
-    }
-    dispatch(setLoading({ isLoading: false }));
+    mutate(data);
   };
 
   return (
@@ -73,11 +57,13 @@ function Login() {
             </NavLink>
           </Form.Item>
 
-          <Form.Item>
-            <Button htmlType="submit" block>
-              Đăng nhập
-            </Button>
-          </Form.Item>
+          <LoadingComponet isLoading={isPending}>
+            <Form.Item>
+              <Button htmlType="submit" block>
+                Đăng nhập
+              </Button>
+            </Form.Item>
+          </LoadingComponet>
         </Form>
         <Button
           onClick={() => navigate("/")}

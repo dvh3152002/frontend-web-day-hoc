@@ -32,7 +32,6 @@ export const setFormData = (data) => {
   });
 
   formData.append("Content-Type", "multipart/form-data");
-
   return formData;
 };
 

@@ -4,25 +4,14 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import * as userService from "../../../apis/service/UserService";
 import { setLoading } from "../../../store/slice/LoadingSlice";
+import LoadingComponet from "../../../components/loading/index";
+import { useRegister } from "../../../apis/hooks/authMutationHook";
 
 function Register() {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+  const { mutate, isPending } = useRegister();
 
   const onFinish = async (data) => {
-    dispatch(setLoading({ isLoading: true }));
-    const res = await userService.register({
-      ...data,
-      roles: [2],
-    });
-    if (res?.success) {
-      message.success("Đăng kí tài khoản thành công");
-      navigate("/login");
-    } else {
-      const err = res.error.message;
-      message.error(err);
-    }
-    dispatch(setLoading({ isLoading: false }));
+    mutate(data);
   };
 
   return (
@@ -90,9 +79,15 @@ function Register() {
           </Form.Item>
 
           <Form.Item>
-            <Button className="bg-blue-500 text-white" htmlType="submit" block>
-              Đăng kí
-            </Button>
+            <LoadingComponet isLoading={isPending}>
+              <Button
+                className="bg-blue-500 text-white"
+                htmlType="submit"
+                block
+              >
+                Đăng kí
+              </Button>
+            </LoadingComponet>
           </Form.Item>
 
           <Form.Item>

@@ -21,9 +21,7 @@ function EditPost() {
     },
   ];
 
-  const onChange = (key) => {
-    console.log(key);
-  };
+  const onChange = (key) => {};
   return (
     <div className="p-5">
       <Tabs onChange={onChange} type="card" items={tabs} />

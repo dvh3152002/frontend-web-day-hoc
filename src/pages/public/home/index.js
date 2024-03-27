@@ -6,6 +6,8 @@ import { Tabs } from "antd";
 import * as courseService from "../../../apis/service/CourseService";
 import SlickComponent from "../../../components/slick";
 import { useMediaQuery } from "react-responsive";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import LoadingComponent from "../../../components/loading";
 
 function Home() {
   const isDesktopOrLaptop = useMediaQuery({
@@ -16,7 +18,6 @@ function Home() {
     minWidth: 640,
   });
 
-  const [courses, setCourses] = useState([]);
   const [params, setParams] = useState({
     sortField: "createDate",
     sortType: "DESC",
@@ -24,12 +25,13 @@ function Home() {
 
   const getListCourse = async () => {
     const res = await courseService.getListCourse(params);
-    if (res?.success) setCourses(res.data.items);
+    return res;
   };
 
-  useEffect(() => {
-    getListCourse();
-  }, [params]);
+  const { data: courses, isLoading } = useQuery({
+    queryKey: ["courses", params],
+    queryFn: getListCourse,
+  });
 
   const items = [
     {
@@ -39,7 +41,7 @@ function Home() {
         <SlickComponent
           isDesktopOrLaptop={isDesktopOrLaptop}
           isTablet={isTablet}
-          courses={courses}
+          courses={courses?.data?.items}
         />
       ),
     },
@@ -50,7 +52,7 @@ function Home() {
         <SlickComponent
           isDesktopOrLaptop={isDesktopOrLaptop}
           isTablet={isTablet}
-          courses={courses}
+          courses={courses?.data?.items}
         />
       ),
     },
@@ -62,15 +64,17 @@ function Home() {
 
   return (
     <div className="w-full">
-      <Row>
-        <Col span={5} className="border-2 mr-2">
-          <Sidebar />
-        </Col>
-        <Col span={18} className="border-2">
-          <CarouselSlider />
-        </Col>
-      </Row>
-      <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+      <LoadingComponent isLoading={isLoading}>
+        <Row>
+          <Col span={5} className="border-2 mr-2">
+            <Sidebar />
+          </Col>
+          <Col span={18} className="border-2">
+            <CarouselSlider />
+          </Col>
+        </Row>
+        <Tabs defaultActiveKey="1" items={items} onChange={onChange} />
+      </LoadingComponent>
     </div>
   );
 }

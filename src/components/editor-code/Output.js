@@ -14,7 +14,6 @@ function Output({ editorRef }) {
   const runCode = async (data) => {
     dispatch(setLoading({ isLoading: true }));
     const res = await codeService.runCode(setFormData({ data: data }));
-    console.log(res);
     setIsError(!res?.success);
     setOutput(res?.success ? res.data : res.error.message);
     dispatch(setLoading({ isLoading: false }));

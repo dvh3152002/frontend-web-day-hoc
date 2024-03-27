@@ -55,7 +55,6 @@ export const createUser = async (data) => {
 };
 
 export const updateUser = async (id, data) => {
-  console.log("data: ", data);
   return axios({
     url: `/user/${id}`,
     method: "PUT",

@@ -2,92 +2,42 @@ import React, { useEffect, useRef, useState } from "react";
 import { Typography, Table, Input, Space, Button, message, Modal } from "antd";
 import * as userService from "../../../../apis/service/UserService";
 import * as roleService from "../../../../apis/service/RoleService";
-import { useDispatch, useSelector } from "react-redux";
-import { setLoading } from "../../../../store/slice/LoadingSlice";
 import {
   SearchOutlined,
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
 import { NavLink, useNavigate } from "react-router-dom";
-import * as userAction from "../../../../store/action/UserAction";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import LoadingComponent from "../../../../components/loading";
+import { useDeleteUser } from "../../../../apis/hooks/userMutationHook";
 
 function ManageUser() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
   const { confirm } = Modal;
-  const [data, setData] = useState([]);
   const [roleData, setRoleData] = useState([]);
   const [bodyData, setBodyData] = useState({ limit: 10, start: 0 });
-  const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
+  const queryClient = useQueryClient();
 
   const getListUser = async () => {
-    dispatch(setLoading({ isLoading: true }));
-    try {
-      const res = await userService.getListUser(bodyData);
-      if (res.success) setData(res.data);
-    } catch (error) {
-      message.error("Đã xảy ra lỗi khi tải danh sách người dùng");
-    }
-    const setTimeoutId = setTimeout(() => {
-      dispatch(setLoading({ isLoading: false }));
-    }, 1000);
-    return () => {
-      clearTimeout(setTimeoutId);
-    };
+    const res = await userService.getListUser(bodyData);
+    return res;
   };
 
-  const deleteUser = async (id) => {
-    dispatch(setLoading({ isLoading: true }));
-    try {
-      const res = await userService.deleteUser(id);
-      if (res.success) {
-        message.success("Xóa người dùng thành công");
-        setUpdate(!update);
-      } else {
-        message.error("Xóa người dùng thất bại");
-      }
-    } catch (error) {
-      message.error("Đã xảy ra lỗi khi xóa người dùng");
-    }
-    dispatch(setLoading({ isLoading: false }));
-  };
+  const { data: users, isLoading } = useQuery({
+    queryKey: ["users", bodyData],
+    queryFn: getListUser,
+  });
 
   const getListRole = async () => {
-    dispatch(setLoading({ isLoading: true }));
     const res = await roleService.getListRole();
     if (res.success) setRoleData(res.data.items);
-    const setTimeoutId = setTimeout(() => {
-      dispatch(setLoading({ isLoading: false }));
-    }, 1000);
-    return () => {
-      clearTimeout(setTimeoutId);
-    };
   };
 
   useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListUser();
     getListRole();
-    const setTimeoutId = setTimeout(() => {
-      dispatch(setLoading({ isLoading: false }));
-    }, 5000);
-    return () => {
-      clearTimeout(setTimeoutId);
-    };
   }, []);
-
-  useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListUser();
-    const setTimeoutId = setTimeout(() => {
-      dispatch(setLoading({ isLoading: false }));
-    }, 5000);
-    return () => {
-      clearTimeout(setTimeoutId);
-    };
-  }, [bodyData, update]);
 
   // Các hàm xử lý sự kiện sắp xếp
   const handleTableChange = (pagination, filters, sorter) => {
@@ -212,14 +162,16 @@ function ManageUser() {
       ),
   });
 
+  const { mutate, isPending } = useDeleteUser();
+
   const handleDelete = (record) => {
     confirm({
       title: "Xóa người dùng",
       content: "Bạn có chắc chắn muốn xóa người dùng này",
       okText: "Xóa",
       cancelText: "Hủy",
-      onOk() {
-        deleteUser(record.id);
+      async onOk() {
+        mutate(record.id);
       },
     });
   };
@@ -291,24 +243,26 @@ function ManageUser() {
       <Typography.Title className="border-b pb-2">
         Danh sách người dùng
       </Typography.Title>
-      <Table
-        columns={columns}
-        dataSource={data.items}
-        pagination={{
-          defaultPageSize: bodyData.limit,
-          showSizeChanger: true,
-          pageSizeOptions: ["10", "25", "50"],
-          total: data.total,
-        }}
-        onChange={handleTableChange} // Xử lý sự kiện sắp xếp
-        onRow={(record, rowIndex) => {
-          return {
-            onClick: (event) => {
-              setRowSelection(record.id);
-            }, // click row
-          };
-        }}
-      />
+      <LoadingComponent isLoading={isLoading || isPending}>
+        <Table
+          columns={columns}
+          dataSource={users?.data?.items}
+          pagination={{
+            defaultPageSize: bodyData.limit,
+            showSizeChanger: true,
+            pageSizeOptions: ["10", "25", "50"],
+            total: users?.data?.total,
+          }}
+          onChange={handleTableChange} // Xử lý sự kiện sắp xếp
+          onRow={(record, rowIndex) => {
+            return {
+              onClick: (event) => {
+                setRowSelection(record.id);
+              }, // click row
+            };
+          }}
+        />
+      </LoadingComponent>
     </div>
   );
 }

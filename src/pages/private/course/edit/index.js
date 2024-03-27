@@ -26,12 +26,9 @@ function EditCourse() {
     },
   ];
 
-  const onChange = (key) => {
-    console.log(key);
-  };
   return (
     <div className="p-5">
-      <Tabs onChange={onChange} type="card" items={tabs} />
+      <Tabs type="card" items={tabs} />
     </div>
   );
 }

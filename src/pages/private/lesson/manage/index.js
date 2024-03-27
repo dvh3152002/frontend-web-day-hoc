@@ -12,23 +12,34 @@ import { useNavigate, useParams } from "react-router-dom";
 import ModalLesson from "../../../../components/modal/lesson";
 import moment from "moment";
 import { setFormData } from "../../../../utils/helper";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutationHook } from "../../../../apis/hooks/userMutationHook";
+import LoadingComponent from "../../../../components/loading";
+import {
+  useCreateLesson,
+  useDeleteLesson,
+  useUpdateLesson,
+} from "../../../../apis/hooks/lessonMutationHook";
 
 function ManageLesson(props) {
   const { id } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { confirm } = Modal;
-  const [data, setData] = useState([]);
   const [bodyData, setBodyData] = useState({
     limit: 10,
     start: 0,
     idCourse: id,
   });
-  const [update, setUpdate] = useState(false);
   const [rowSelection, setRowSelection] = useState();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isModalUpdateOpen, setIsModalUpdateOpen] = useState(false);
   const [lesson, setLesson] = useState();
+
+  const { mutate: updateLessonHook } = useUpdateLesson();
+
+  const { mutate: createLessonHook } = useCreateLesson();
+
+  const { mutate: deleteLeson } = useDeleteLesson();
 
   const showModal = () => {
     setIsModalOpen(true);
@@ -48,68 +59,26 @@ function ManageLesson(props) {
 
   const getListLessonByCourse = async () => {
     const res = await lessonService.getListLessonByCourse(bodyData);
-    if (res.success) setData(res.data);
+    return res;
   };
 
-  const deleteLesson = async (id) => {
-    dispatch(setLoading({ isLoading: true }));
-
-    const res = await lessonService.deleteLesson(id);
-    if (res.success) {
-      message.success("Xóa bài học thành công");
-      setUpdate(!update);
-    } else message.error("Xóa bài học thất bại");
-    dispatch(setLoading({ isLoading: false }));
-  };
+  const { data: lessons, isLoading } = useQuery({
+    queryKey: ["lessons", bodyData],
+    queryFn: getListLessonByCourse,
+  });
 
   const createLesson = async (data) => {
-    const formData = setFormData(data);
-    dispatch(setLoading({ isLoading: true }));
-
-    const res = await lessonService.createLesson(formData);
-    if (res.success) {
-      message.success("Thêm bài học thành công");
-      setUpdate(!update);
-      handleCancel();
-    } else message.error("Thêm bài học thất bại");
-    dispatch(setLoading({ isLoading: false }));
-  };
-
-  const updateLesson = async (data) => {
-    const formData = setFormData(data);
-    dispatch(setLoading({ isLoading: true }));
-
-    const res = await lessonService.updateLesson(data?.id, formData);
-    if (res.success) {
-      message.success("Cập nhật bài học thành công");
-      setUpdate(!update);
-      handleCancelUpdate();
-    } else message.error("Cập nhật bài học thất bại");
-    dispatch(setLoading({ isLoading: false }));
+    createLessonHook(data);
+    handleCancel();
   };
 
   const handleSetLesson = async (record) => {
-    dispatch(setLoading({ isLoading: true }));
-
     const res = await lessonService.getLessonById(record.id);
     if (res.success) {
       setLesson(res.data);
       showModalUpdate();
     } else message.error(`Không tồn tại bài học có id là: ${id}`);
-    dispatch(setLoading({ isLoading: false }));
   };
-
-  useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListLessonByCourse();
-    dispatch(setLoading({ isLoading: false }));
-  }, []);
-
-  useEffect(() => {
-    dispatch(setLoading({ isLoading: true }));
-    getListLessonByCourse();
-    dispatch(setLoading({ isLoading: false }));
-  }, [bodyData, update]);
 
   // Các hàm xử lý sự kiện sắp xếp
   const handleTableChange = (pagination, filters, sorter) => {
@@ -231,7 +200,7 @@ function ManageLesson(props) {
       okText: "Xóa",
       cancelText: "Hủy",
       onOk() {
-        deleteLesson(record.id);
+        deleteLeson(record.id);
       },
     });
   };
@@ -249,6 +218,11 @@ function ManageLesson(props) {
         />
       </div>
     );
+  };
+
+  const updateLesson = (data) => {
+    updateLessonHook(data);
+    handleCancelUpdate();
   };
 
   const columns = [
@@ -300,24 +274,26 @@ function ManageLesson(props) {
             Thêm mới
           </Button>
         </div>
-        <Table
-          columns={columns}
-          dataSource={data.items}
-          pagination={{
-            defaultPageSize: bodyData.limit,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "25", "50"],
-            total: data.total,
-          }}
-          onChange={handleTableChange} // Xử lý sự kiện sắp xếp
-          onRow={(record, rowIndex) => {
-            return {
-              onClick: (event) => {
-                setRowSelection(record.id);
-              }, // click row
-            };
-          }}
-        />
+        <LoadingComponent isLoading={isLoading}>
+          <Table
+            columns={columns}
+            dataSource={lessons?.data?.items}
+            pagination={{
+              defaultPageSize: bodyData.limit,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "25", "50"],
+              total: lessons?.data?.total,
+            }}
+            onChange={handleTableChange} // Xử lý sự kiện sắp xếp
+            onRow={(record, rowIndex) => {
+              return {
+                onClick: (event) => {
+                  setRowSelection(record.id);
+                }, // click row
+              };
+            }}
+          />
+        </LoadingComponent>
       </div>
       <ModalLesson
         isModalOpen={isModalOpen}
